@@ -42,7 +42,11 @@ def procesar_pagos(file):
     # Crear la columna 'Estado de Deuda'
     df['Estado de Deuda'] = df.apply(lambda row: 'Deuda vencida' if row['Fecha de vencimiento'] < today and row['Estado de pago'] == 'No pagadas' else ('Deuda por pagar' if row['Estado de pago'] == 'No pagadas' else row['Estado de pago']), axis=1)
 
-    return df
+    # Dividir en pagados y otros
+    df_pagados = df[df['Estado de pago'] == 'Pagado']
+    df_otros = df[df['Estado de pago'] != 'Pagado']
+
+    return df_pagados, df_otros
 
 def procesar_clientes(file):
     df = pd.read_excel(file)
@@ -62,7 +66,11 @@ def procesar_clientes(file):
     # Crear la columna 'Estado de Cobranza'
     df['Estado de Cobranza'] = df.apply(lambda row: 'Cobranza vencida' if row['Fecha de vencimiento'] < today and row['Estado de pago'] == 'No pagadas' else ('Cobranza por cobrar' if row['Estado de pago'] == 'No pagadas' else row['Estado de pago']), axis=1)
 
-    return df
+    # Dividir en pagados y otros
+    df_pagados = df[df['Estado de pago'] == 'Pagado']
+    df_otros = df[df['Estado de pago'] != 'Pagado']
+
+    return df_pagados, df_otros
 
 st.title("Modificador de Archivos Excel")
 
@@ -90,36 +98,44 @@ if uploaded_file_extracto is not None:
     )
 
 if uploaded_file_pagos is not None:
-    df_pagos = procesar_pagos(uploaded_file_pagos)
+    df_pagados, df_otros = procesar_pagos(uploaded_file_pagos)
     
-    st.write("Vista previa del archivo de pagos modificado:")
-    st.dataframe(df_pagos)
+    st.write("Vista previa del archivo de pagos (Pagados):")
+    st.dataframe(df_pagados)
+    
+    st.write("Vista previa del archivo de pagos (Otros):")
+    st.dataframe(df_otros)
     
     output_pagos = BytesIO()
     with pd.ExcelWriter(output_pagos, engine='xlsxwriter') as writer:
-        df_pagos.to_excel(writer, sheet_name='Pagos', index=False)
+        df_pagados.to_excel(writer, sheet_name='Pagados', index=False)
+        df_otros.to_excel(writer, sheet_name='Otros', index=False)
     output_pagos.seek(0)
     
     st.download_button(
-        label="Descargar archivo de pagos modificado",
+        label="Descargar archivo de pagos",
         data=output_pagos,
         file_name="pagos.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 if uploaded_file_clientes is not None:
-    df_clientes = procesar_clientes(uploaded_file_clientes)
+    df_pagados, df_otros = procesar_clientes(uploaded_file_clientes)
     
-    st.write("Vista previa del archivo de clientes modificado:")
-    st.dataframe(df_clientes)
+    st.write("Vista previa del archivo de clientes (Pagados):")
+    st.dataframe(df_pagados)
+    
+    st.write("Vista previa del archivo de clientes (Otros):")
+    st.dataframe(df_otros)
     
     output_clientes = BytesIO()
     with pd.ExcelWriter(output_clientes, engine='xlsxwriter') as writer:
-        df_clientes.to_excel(writer, sheet_name='Clientes', index=False)
+        df_pagados.to_excel(writer, sheet_name='Pagados', index=False)
+        df_otros.to_excel(writer, sheet_name='Otros', index=False)
     output_clientes.seek(0)
     
     st.download_button(
-        label="Descargar archivo de clientes modificado",
+        label="Descargar archivo de clientes",
         data=output_clientes,
         file_name="clientes.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
