@@ -34,20 +34,15 @@ def procesar_pagos(file):
     # Obtener la fecha de hoy
     today = datetime.today()
 
-    # Filtrar las facturas que no están pagadas y las que están pagadas
-    unpaid = df[df['Estado de pago'] != 'Pagado']
-    paid = df[df['Estado de pago'] == 'Pagado']
-
-    # Crear columnas adicionales para ambos dataframes
-    for dataframe in [unpaid, paid]:
-        dataframe['Semana'] = dataframe['Fecha de vencimiento'].dt.to_period('W').apply(lambda r: r.start_time)
-        dataframe['Semana del Año'] = dataframe['Fecha de vencimiento'].dt.isocalendar().week
-        dataframe['Día de la Semana'] = dataframe['Fecha de vencimiento'].dt.day_name()
+    # Crear columnas adicionales
+    df['Semana'] = df['Fecha de vencimiento'].dt.to_period('W').apply(lambda r: r.start_time)
+    df['Semana del Año'] = df['Fecha de vencimiento'].dt.isocalendar().week
+    df['Día de la Semana'] = df['Fecha de vencimiento'].dt.day_name()
 
     # Crear la columna 'Estado de Deuda'
     df['Estado de Deuda'] = df.apply(lambda row: 'Deuda vencida' if row['Fecha de vencimiento'] < today and row['Estado de pago'] == 'No pagadas' else ('Deuda por pagar' if row['Estado de pago'] == 'No pagadas' else row['Estado de pago']), axis=1)
 
-    return unpaid, paid, df
+    return df
 
 def procesar_clientes(file):
     df = pd.read_excel(file)
@@ -59,20 +54,15 @@ def procesar_clientes(file):
     # Obtener la fecha de hoy
     today = datetime.today()
 
-    # Filtrar las facturas que no están pagadas y las que están pagadas
-    unpaid = df[df['Estado de pago'] != 'Pagado']
-    paid = df[df['Estado de pago'] == 'Pagado']
-
-    # Crear columnas adicionales para ambos dataframes
-    for dataframe in [unpaid, paid]:
-        dataframe['Semana'] = dataframe['Fecha de vencimiento'].dt.to_period('W').apply(lambda r: r.start_time)
-        dataframe['Semana del Año'] = dataframe['Fecha de vencimiento'].dt.isocalendar().week
-        dataframe['Día de la Semana'] = dataframe['Fecha de vencimiento'].dt.day_name()
+    # Crear columnas adicionales
+    df['Semana'] = df['Fecha de vencimiento'].dt.to_period('W').apply(lambda r: r.start_time)
+    df['Semana del Año'] = df['Fecha de vencimiento'].dt.isocalendar().week
+    df['Día de la Semana'] = df['Fecha de vencimiento'].dt.day_name()
 
     # Crear la columna 'Estado de Cobranza'
     df['Estado de Cobranza'] = df.apply(lambda row: 'Cobranza vencida' if row['Fecha de vencimiento'] < today and row['Estado de pago'] == 'No pagadas' else ('Cobranza por cobrar' if row['Estado de pago'] == 'No pagadas' else row['Estado de pago']), axis=1)
 
-    return unpaid, paid, df
+    return df
 
 st.title("Modificador de Archivos Excel")
 
@@ -100,97 +90,37 @@ if uploaded_file_extracto is not None:
     )
 
 if uploaded_file_pagos is not None:
-    unpaid_pagos, paid_pagos, df_pagos_modificado = procesar_pagos(uploaded_file_pagos)
-    
-    st.write("Vista previa del archivo de pagos no pagados:")
-    st.dataframe(unpaid_pagos)
-    
-    st.write("Vista previa del archivo de pagos pagados:")
-    st.dataframe(paid_pagos)
+    df_pagos = procesar_pagos(uploaded_file_pagos)
     
     st.write("Vista previa del archivo de pagos modificado:")
-    st.dataframe(df_pagos_modificado)
+    st.dataframe(df_pagos)
     
-    output_unpaid_pagos = BytesIO()
-    with pd.ExcelWriter(output_unpaid_pagos, engine='xlsxwriter') as writer:
-        unpaid_pagos.to_excel(writer, index=False)
-    output_unpaid_pagos.seek(0)
+    output_pagos = BytesIO()
+    with pd.ExcelWriter(output_pagos, engine='xlsxwriter') as writer:
+        df_pagos.to_excel(writer, sheet_name='Pagos', index=False)
+    output_pagos.seek(0)
     
-    output_paid_pagos = BytesIO()
-    with pd.ExcelWriter(output_paid_pagos, engine='xlsxwriter') as writer:
-        paid_pagos.to_excel(writer, index=False)
-    output_paid_pagos.seek(0)
-
-    output_pagos_modificado = BytesIO()
-    with pd.ExcelWriter(output_pagos_modificado, engine='xlsxwriter') as writer:
-        df_pagos_modificado.to_excel(writer, index=False)
-    output_pagos_modificado.seek(0)
-    
-    st.download_button(
-        label="Descargar archivo de pagos no pagados",
-        data=output_unpaid_pagos,
-        file_name="pagos_no_pagados.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-    st.download_button(
-        label="Descargar archivo de pagos pagados",
-        data=output_paid_pagos,
-        file_name="pagos_pagados.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
     st.download_button(
         label="Descargar archivo de pagos modificado",
-        data=output_pagos_modificado,
-        file_name="pagos_modificado.xlsx",
+        data=output_pagos,
+        file_name="pagos.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 if uploaded_file_clientes is not None:
-    unpaid_clientes, paid_clientes, df_clientes_modificado = procesar_clientes(uploaded_file_clientes)
+    df_clientes = procesar_clientes(uploaded_file_clientes)
     
-    st.write("Vista previa del archivo de clientes no pagados:")
-    st.dataframe(unpaid_clientes)
-    
-    st.write("Vista previa del archivo de clientes pagados:")
-    st.dataframe(paid_clientes)
-
     st.write("Vista previa del archivo de clientes modificado:")
-    st.dataframe(df_clientes_modificado)
+    st.dataframe(df_clientes)
     
-    output_unpaid_clientes = BytesIO()
-    with pd.ExcelWriter(output_unpaid_clientes, engine='xlsxwriter') as writer:
-        unpaid_clientes.to_excel(writer, index=False)
-    output_unpaid_clientes.seek(0)
+    output_clientes = BytesIO()
+    with pd.ExcelWriter(output_clientes, engine='xlsxwriter') as writer:
+        df_clientes.to_excel(writer, sheet_name='Clientes', index=False)
+    output_clientes.seek(0)
     
-    output_paid_clientes = BytesIO()
-    with pd.ExcelWriter(output_paid_clientes, engine='xlsxwriter') as writer:
-        paid_clientes.to_excel(writer, index=False)
-    output_paid_clientes.seek(0)
-
-    output_clientes_modificado = BytesIO()
-    with pd.ExcelWriter(output_clientes_modificado, engine='xlsxwriter') as writer:
-        df_clientes_modificado.to_excel(writer, index=False)
-    output_clientes_modificado.seek(0)
-    
-    st.download_button(
-        label="Descargar archivo de clientes no pagados",
-        data=output_unpaid_clientes,
-        file_name="clientes_no_pagados.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-    st.download_button(
-        label="Descargar archivo de clientes pagados",
-        data=output_paid_clientes,
-        file_name="clientes_pagados.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
     st.download_button(
         label="Descargar archivo de clientes modificado",
-        data=output_clientes_modificado,
-        file_name="clientes_modificado.xlsx",
+        data=output_clientes,
+        file_name="clientes.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
