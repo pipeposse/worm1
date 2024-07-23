@@ -83,7 +83,7 @@ if uploaded_file_extracto is not None:
     df_modificado = modificar_excel(uploaded_file_extracto, file_type_extracto)
     
     st.write("Vista previa del archivo de extracto bancario modificado:")
-    st.dataframe(df_modificado)
+    st.dataframe(df_modificado.head(4))  # Mostrar solo las primeras 4 filas
 
     output_extracto = BytesIO()
     with pd.ExcelWriter(output_extracto, engine='xlsxwriter') as writer:
@@ -101,10 +101,10 @@ if uploaded_file_pagos is not None:
     df_pagados, df_otros = procesar_pagos(uploaded_file_pagos)
     
     st.write("Vista previa del archivo proveedores pagados:")
-    st.dataframe(df_pagados)
+    st.dataframe(df_pagados.head(4))  # Mostrar solo las primeras 4 filas
     
     st.write("Vista previa de proveedores no pagados:")
-    st.dataframe(df_otros)
+    st.dataframe(df_otros.head(4))  # Mostrar solo las primeras 4 filas
     
     output_pagos = BytesIO()
     with pd.ExcelWriter(output_pagos, engine='xlsxwriter') as writer:
@@ -123,10 +123,10 @@ if uploaded_file_clientes is not None:
     df_pagados, df_otros = procesar_clientes(uploaded_file_clientes)
     
     st.write("Vista previa del archivo de clientes (Cobrados):")
-    st.dataframe(df_pagados)
+    st.dataframe(df_pagados.head(4))  # Mostrar solo las primeras 4 filas
     
     st.write("Vista previa del archivo de clientes (No cobrados):")
-    st.dataframe(df_otros)
+    st.dataframe(df_otros.head(4))  # Mostrar solo las primeras 4 filas
     
     output_clientes = BytesIO()
     with pd.ExcelWriter(output_clientes, engine='xlsxwriter') as writer:
