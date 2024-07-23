@@ -108,8 +108,8 @@ if uploaded_file_pagos is not None:
     
     output_pagos = BytesIO()
     with pd.ExcelWriter(output_pagos, engine='xlsxwriter') as writer:
-        df_pagados.to_excel(writer, sheet_name='Pagados', index=False)
-        df_otros.to_excel(writer, sheet_name='Otros', index=False)
+        df_pagados.to_excel(writer, sheet_name='deudas_pagadas', index=False)
+        df_otros.to_excel(writer, sheet_name='deudas_no_pagadas', index=False)
     output_pagos.seek(0)
     
     st.download_button(
@@ -130,8 +130,8 @@ if uploaded_file_clientes is not None:
     
     output_clientes = BytesIO()
     with pd.ExcelWriter(output_clientes, engine='xlsxwriter') as writer:
-        df_pagados.to_excel(writer, sheet_name='Pagados', index=False)
-        df_otros.to_excel(writer, sheet_name='Otros', index=False)
+        df_pagados.to_excel(writer, sheet_name='cobranzas_cobradas', index=False)
+        df_otros.to_excel(writer, sheet_name='cobranzas_no_cobradas', index=False)
     output_clientes.seek(0)
     
     st.download_button(
