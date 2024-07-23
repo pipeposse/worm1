@@ -93,7 +93,7 @@ if uploaded_file_extracto is not None:
     st.download_button(
         label="Descargar archivo de extracto bancario modificado",
         data=output_extracto,
-        file_name="mov_modificado.xlsx",
+        file_name="extracto_mod.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
@@ -115,7 +115,7 @@ if uploaded_file_pagos is not None:
     st.download_button(
         label="Descargar archivo de pagos",
         data=output_pagos,
-        file_name="pagos.xlsx",
+        file_name="pagos_mod.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
@@ -137,6 +137,6 @@ if uploaded_file_clientes is not None:
     st.download_button(
         label="Descargar archivo de clientes",
         data=output_clientes,
-        file_name="clientes.xlsx",
+        file_name="clientes_mod.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
