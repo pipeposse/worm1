@@ -48,8 +48,8 @@ def procesar_pagos_o_clientes(file):
         df['Estado'] = df.apply(lambda row: 'Vencida' if row['Fecha de vencimiento'] < today and row['Estado de pago'] == 'No pagadas' else ('Por pagar' if row['Estado de pago'] == 'No pagadas' else row['Estado de pago']), axis=1)
 
         # Dividir en pagados y otros
-        df_pagados = df[df['Estado de pago'] == 'Pagado']
-        df_otros = df[df['Estado de pago'] != 'Pagado']
+        df_pagados = df[df['Estado de pago'].isin(['Pagado', 'Revertido'])]
+        df_otros = df[~df['Estado de pago'].isin(['Pagado', 'Revertido'])]
 
         return df_pagados, df_otros
     except Exception as e:
