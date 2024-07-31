@@ -79,8 +79,8 @@ def mostrar_y_descargar(df_pagados, df_otros, filename_prefix):
 st.title("Modificador de Archivos Excel")
 
 uploaded_file_extracto = st.file_uploader("Subí el último extracto bancario", type=["xls", "xlsx"])
-uploaded_file_pagos = st.file_uploader("Subí facturas de Proveedores", type=["xls", "xlsx"])
 uploaded_file_clientes = st.file_uploader("Subí factura de Clientes", type=["xls", "xlsx"])
+uploaded_file_pagos = st.file_uploader("Subí facturas de Proveedores", type=["xls", "xlsx"])
 
 if uploaded_file_extracto is not None:
     file_type_extracto = uploaded_file_extracto.name.split('.')[-1]
@@ -102,14 +102,14 @@ if uploaded_file_extracto is not None:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-if uploaded_file_pagos is not None:
-    df_pagados, df_otros = procesar_pagos_o_clientes(uploaded_file_pagos)
-    
-    if df_pagados is not None and df_otros is not None:
-        mostrar_y_descargar(df_pagados, df_otros, "proveedores")
-
 if uploaded_file_clientes is not None:
     df_pagados, df_otros = procesar_pagos_o_clientes(uploaded_file_clientes)
     
     if df_pagados is not None and df_otros is not None:
         mostrar_y_descargar(df_pagados, df_otros, "clientes")
+
+if uploaded_file_pagos is not None:
+    df_pagados, df_otros = procesar_pagos_o_clientes(uploaded_file_pagos)
+    
+    if df_pagados is not None and df_otros is not None:
+        mostrar_y_descargar(df_pagados, df_otros, "proveedores")
